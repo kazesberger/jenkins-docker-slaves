@@ -1,0 +1,38 @@
+---
+# file: jenkins-slave-docker/setup.yml
+# main play for setting up jenkins-slave-docker
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "play that setups jenkins-slave-docker"
+  hosts: "local"
+  connection: "local"
+
+  vars:
+    jenkins_user: "jenkins"
+    jenkins_group: "jenkins"
+
+  tasks:
+  - name: "install docker"
+    yum:
+      name="docker-io"
+      state="latest"
+    when:
+      ansible_distribution == "CentOS" or
+      ansible_distribution == "Red Hat Enterprise Linux"
+
+  - name: "install docker-py via pip"
+    command: "pip install docker-py"
+
+  - name: "copy init role"
+    copy:
+      src="files/init"
+      dest="/home/jenkins"
+      owner="{{ jenkins_user }}"
+      group="{{ jenkins_group }}"
+      directory_mode
+
+  - name: "add init role to init.yml"
+    lineinfile:
+      dest="/home/jenkins/init/init.yml"
+      line="  - jenkins-slave-docker"
+      insertafter="  - jenkins-slave-base"

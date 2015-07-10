@@ -1,0 +1,27 @@
+---
+# file: roles/playbook-generator/main.yml
+# role for generating playbooks for Jenkins slaves
+
+- name: make sure playbook directory exists
+  file:
+    path="{{ docker_build_path }}/{{ item.name }}/playbook"
+    state="directory"
+  with_items: images_to_build
+
+- name: copy playbook files
+  copy:
+    src="playbooks/{{ item.name }}"
+    dest="{{ docker_build_path }}/{{ item.name }}/playbook"
+  with_items: images_to_build
+
+- name: copy common roles
+  copy:
+    src="playbooks/common/roles"
+    dest="{{ docker_build_path }}/{{ item.name }}/playbook/{{ item.name }}"
+  with_items: images_to_build
+
+- name: copy default inventory file
+  copy:
+    src="default-inventory"
+    dest="{{ docker_build_path }}/{{ item.name }}/playbook/{{ item.name }}/localhost"
+  with_items: images_to_build

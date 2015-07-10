@@ -1,0 +1,15 @@
+---
+# file: roles/dockerfile-generator/main.yml
+# role for generating dockerfiles from templates
+
+- name: "make sure build directory exists"
+  file:
+    path="{{ docker_build_path }}/{{ item.name }}"
+    state="directory"
+  with_items: images_to_build
+
+- name: "generate dockerfiles"
+  template:
+    src="{{ item.dockerfile_template }}"
+    dest="{{ docker_build_path }}/{{ item.name }}/Dockerfile"
+  with_items: images_to_build

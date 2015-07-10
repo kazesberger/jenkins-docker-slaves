@@ -1,0 +1,5 @@
+---
+
+firefox_pkg_version: 31.5.3esr
+firefox_pkg_version: 24.2.0esr
+firefox_download_url: https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/{{firefox_pkg_version}}/linux-x86_64/en-US/firefox-{{firefox_pkg_version}}.tar.bz2"

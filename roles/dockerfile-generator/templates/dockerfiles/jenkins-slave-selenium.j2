@@ -1,0 +1,10 @@
+FROM {{ item.from }}
+
+MAINTAINER Infonova DevOpSS <dev_opss@infonova.com>
+
+ENV DISPLAY :1
+
+# setup slave
+COPY playbook/{{ item.name }} /setup
+RUN ansible-playbook -i /setup/localhost /setup/setup.yml && \
+    rm -rf /setup

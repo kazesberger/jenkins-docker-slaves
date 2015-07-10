@@ -1,0 +1,49 @@
+---
+# file: roles/gradle/tasks/main.yml
+# role for installing gradle on a slave
+
+- name: "make sure download dir exists"
+  file:
+    dest="{{ item.download_dir }}"
+    state="directory"
+    owner="{{ user }}"
+    group="{{ group }}"
+  with_items: gradles_to_install
+
+- name: "make sure install dir exists"
+  file:
+    dest="{{ item.install_dir }}"
+    state="directory"
+    owner="{{ user }}"
+    group="{{ group }}"
+  with_items: gradles_to_install
+
+- name: "download gradle"
+  get_url:
+    url="https://services.gradle.org/distributions/{{ item.package_name }}"
+    dest="{{ item.download_dir }}/{{ item.package_name }}"
+  with_items: gradles_to_install
+
+- name: "extract gradle"
+  sudo: "yes"
+  sudo_user: "{{ user }}"
+  unarchive:
+    src="{{ item.download_dir }}/{{ item.package_name }}"
+    dest="{{ item.install_dir }}"
+    copy="false"
+  args:
+    creates: "{{ item.install_dir }}/{{ item.extract_name }}"
+  with_items: gradles_to_install
+
+- name: "rename gradle folder"
+  command: "mv {{ item.extract_name }} {{ item.install_name }}"
+  args:
+    chdir: "{{ item.install_dir }}"
+  when: item.extract_name != item.install_name
+  with_items: gradles_to_install
+
+- name: "remove install files"
+  file:
+    dest="{{ item.download_dir }}"
+    state="absent"
+  with_items: gradles_to_install

@@ -1,0 +1,28 @@
+---
+# file: jenkins-slave-selenium/setup.yml
+# main play for setting up jenkins-slave-selenium
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "play that setups jenkins-slave-selenium"
+  hosts: "local"
+  connection: "local"
+
+  vars:
+    jenkins_user:   "jenkins"
+    jenkins_group:  "jenkins"
+    repo_google_all:
+      - chrome
+
+  roles:
+  - { role: "tigervnc",
+        user: "{{ jenkins_user }}",
+        group: "{{ jenkins_group }}"
+    }
+  - { role: "novnc",
+        user: "{{ jenkins_user }}",
+        group: "{{ jenkins_group }}"
+    }
+  - ansible-repo-google-master
+  - firefox
+  - chrome
+

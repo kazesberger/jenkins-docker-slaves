@@ -1,0 +1,19 @@
+---
+# file: roles/init/main.yml
+# role for installing init playbook
+
+- name: "copy init playbook"
+  copy:
+    src="init"
+    dest="{{ playbook_destination }}"
+    owner="{{ user }}"
+    group="{{ group }}"
+    directory_mode
+
+- name: "copy init script"
+  copy:
+    src="init.sh"
+    dest="{{ playbook_destination }}"
+    owner="{{ user }}"
+    group="{{ group }}"
+    mode="a+x"

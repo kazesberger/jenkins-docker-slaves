@@ -1,0 +1,5 @@
+- name: "update ca trust"
+  command: "update-ca-trust {{ item }}"
+  with_items:
+  - ["enable",
+     "extract"]

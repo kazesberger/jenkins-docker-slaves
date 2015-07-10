@@ -1,0 +1,15 @@
+---
+# file: jenkins-slave-tools/setup.yml
+# main play for setting up jenkins-slave-tools
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "play that setups jenkins-slave-tools"
+  hosts: "local"
+  connection: "local"
+
+  vars:
+    jenkins_user:   "jenkins"
+    jenkins_group:  "jenkins"
+
+  roles:
+  - oracle-client

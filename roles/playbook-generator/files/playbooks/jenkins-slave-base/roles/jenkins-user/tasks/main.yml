@@ -1,0 +1,28 @@
+---
+# file: roles/jenkins-user/main.yml
+# role for adding jenkins user
+
+- name: "add user {{ user }}"
+  user:
+    name="{{ user }}"
+    createhome="yes"
+    home="{{ home_dir }}"
+    generate_ssh_key="no"
+    uid="666"
+
+- name: "deactivate require tty in /etc/sudoers"
+  lineinfile:
+    dest="/etc/sudoers"
+    line="{{ item }}"
+  with_items:
+  - ["Cmnd_Alias VPN = /usr/sbin/vpnc, /usr/sbin/vpnc-disconnect",
+     "jenkins ALL = NOPASSWD: VPN"]
+
+- name: "update bashrc for jenkins user"
+  lineinfile:
+    dest="/home/jenkins/.bashrc"
+    line="export _JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true"
+    owner="jenkins"
+    state="present"
+    insertafter="EOF"
+    create="True"

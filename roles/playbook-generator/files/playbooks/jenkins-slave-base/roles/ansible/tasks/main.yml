@@ -1,0 +1,48 @@
+---
+# file: roles/basic-tools/main.yml
+# role for installing basic tools
+
+- name: ensure /etc/ansible
+  file:
+    path: /etc/ansible
+    owner: jenkins
+    group: jenkins
+    mode: 0755
+    state: directory
+
+- name: ansible hosts file for localhost
+  copy:
+    src: hosts
+    dest: /etc/ansible/hosts
+    owner: jenkins
+    group: jenkins
+    mode: a+r
+
+- name: "install ansible libraries yum"
+  yum:
+    name="{{ item }}"
+    state="latest"
+  with_items:
+    - yum-plugin-priorities
+  when:
+    ansible_distribution == "CentOS" or
+    ansible_distribution == "Red Hat Enterprise Linux"
+
+- name: "install openstack-juno release repo yum"
+  shell: yum install -y http://rdo.fedorapeople.org/openstack-juno/rdo-release-juno.rpm
+  when:
+    ansible_distribution == "CentOS" or
+    ansible_distribution == "Red Hat Enterprise Linux"
+
+- name: "install ansible libraries pip"
+  pip:
+    name="{{ item }}"
+    state="latest"
+  with_items:
+    - boto
+    - python-neutronclient
+    - python-keystoneclient
+    - rackspace-novaclient
+  when:
+    ansible_distribution == "CentOS" or
+    ansible_distribution == "Red Hat Enterprise Linux"

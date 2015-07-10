@@ -1,0 +1,47 @@
+---
+# file: roles/sqlncli/tasks/main.yml
+# role for installing sqlncli on a slave
+
+- name: "install build dependencies for sqlncli"
+  yum:
+    name="{{ item }}"
+    state="latest"
+  with_items:
+  - ["e2fsprogs",
+     "automake",
+     "autoconf",
+     "libtool",
+     "make"]
+
+- name: "make sure download dir exists"
+  file:
+    dest="/tmp/sqlncli"
+    state="directory"
+
+- name: "download sqlcli"
+  get_url:
+    url="http://10.1.30.129/tools/mssql/sqlncli-11.0.1790.0.tar.gz"
+    dest="/tmp/sqlncli/sqlncli-11.0.1790.0.tar.gz"
+
+- name: "extract sqlncli"
+  unarchive:
+    src="/tmp/sqlncli/sqlncli-11.0.1790.0.tar.gz"
+    dest="/tmp/sqlncli/"
+    copy="false"
+  args:
+    creates: "/tmp/sqlncli/sqlncli-11.0.1790.0"
+
+- name: "install sqlncli"
+  shell: "{{ item }}"
+  args:
+    chdir: "/tmp/sqlncli/sqlncli-11.0.1790.0"
+  with_items:
+  - ["./build_dm.sh --accept-warning",
+     "make install -C `ls -d /tmp/unixODBC*/unixODBC*/`",
+     "./install.sh install --accept-license"]
+
+- name: "remove install files"
+  shell: "rm -rf {{ item }}"
+  with_items:
+  - ["/tmp/sqlncli*",
+     "/tmp/unixODBC*"]

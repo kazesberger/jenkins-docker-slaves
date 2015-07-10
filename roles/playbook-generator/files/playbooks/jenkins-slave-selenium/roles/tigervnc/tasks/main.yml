@@ -1,0 +1,53 @@
+---
+# file: roles/jenkins-slave-selenium/tasks/main.yml
+# tasks for initializing jenkins-slave-selenium
+
+- name: "install dependencies"
+  yum:
+    name="{{ item }}"
+    state="present"
+  with_items:
+  - ["xorg-x11-server-utils",
+     "xorg-x11-xauth",
+     "tigervnc-server",
+     "tigervnc"]
+
+- name: "create jenkins vnc password"
+  file: path=/home/jenkins/.vnc/ state=directory owner=jenkins group=jenkins mode=0700 recurse=yes
+
+- file: path=/root/.vnc/ state=directory  owner=jenkins group=jenkins mode=0700 recurse=yes
+
+- name: "create root vnc password"
+  shell: 'echo selenium | vncpasswd -f >> /root/.vnc/passwd'
+
+- name: "create jenkins vnc password"
+  shell: 'echo selenium | vncpasswd -f >> /home/jenkins/.vnc/passwd'
+
+- name: "set permissions jenkins vnc password"
+  file: path=/home/jenkins/.vnc/passwd owner=jenkins group=jenkins mode=0600
+
+- name: "set permissions rot vnc password"
+  file: path=/root/.vnc/passwd owner=root group=root mode=0600
+
+- name: "copy init role"
+  copy:
+    src="init"
+    dest="/home/jenkins"
+    owner="{{ user }}"
+    group="{{ group }}"
+
+- name: "Update bashrc for jenkins user"
+  lineinfile:
+    dest='/home/jenkins/.bashrc'
+    line='export DISPLAY=:1'
+    owner='jenkins'
+    state='present'
+    insertafter='EOF'
+    create='True'
+
+- name: "add init role to init.yml"
+  lineinfile:
+    dest="/home/jenkins/init/init.yml"
+    line="  - tigervnc"
+    insertafter="  - jenkins-slave-base"
+

@@ -1,0 +1,38 @@
+---
+# file: roles/novnc/tasks/main.yml
+# role for installing novnc
+
+- name: "install dependencies"
+  yum:
+    name="{{ item }}"
+    state="present"
+  with_items:
+  - ["novnc"]
+
+- name: "copy init role"
+  copy:
+    src="init"
+    dest="/home/jenkins"
+    owner="{{ user }}"
+    group="{{ group }}"
+    directory_mode
+
+- name: "add init role to init.yml"
+  lineinfile:
+    dest="/home/jenkins/init/init.yml"
+    line="  - novnc"
+    insertafter="  - tigervnc"
+
+- name: "Update bashrc for jenkins user"
+  lineinfile:
+    dest='/home/jenkins/.bashrc'
+    line='export DISPLAY=:1'
+    owner="{{ user }}"
+    state='present'
+    insertafter='EOF'
+    create='True'
+
+- name: "remove install files"
+  file:
+    dest="/tmp/novnc"
+    state="absent"

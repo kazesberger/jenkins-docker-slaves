@@ -1,0 +1,2 @@
+- name: "create xauthority db"
+  command: "mkxauth -c"

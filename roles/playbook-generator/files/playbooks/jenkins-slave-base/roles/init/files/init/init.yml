@@ -1,0 +1,11 @@
+---
+# file: init.yml
+# main play for initializing a slave image
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "play that initializes a slave on container startup"
+  hosts: "local"
+  connection: "local"
+  gather_facts: "no"
+  roles:
+  - jenkins-slave-base

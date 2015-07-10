@@ -1,0 +1,6 @@
+---
+# file: roles/git/vars/main.yml
+# variable vor git installation
+
+git_version: 2.1.2
+git_tmp_dir: /tmp/git

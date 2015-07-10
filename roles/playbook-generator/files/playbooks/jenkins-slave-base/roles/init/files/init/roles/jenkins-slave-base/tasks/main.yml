@@ -1,0 +1,7 @@
+---
+# file: roles/base-image/tasks/main.yml
+# tasks for initializing base-image
+
+- name: update /etc/hosts
+  sudo: yes
+  shell: cat /home/jenkins/init/roles/jenkins-slave-base/files/additional-hosts >> /etc/hosts

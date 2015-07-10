@@ -1,0 +1,54 @@
+---
+# file: group_vars/docker
+# default variables for group docker
+
+docker_build_path: "{{ ansible_env.PWD }}/build"
+docker_repository_name: "grzcidocker01.infonova.at/infonova"
+docker_image_state: "present"
+docker_push_images: "true"
+
+# TODO(seder) collect these values from meta data (docker file, etc.)
+available_images: [
+    {
+        "name": "jenkins-slave-base",
+        "tag":  "1000.1",
+        "from": "centos:centos7",
+        "dockerfile_template": "dockerfiles/jenkins-slave-base.j2"
+    },
+    {
+        "name": "jenkins-slave-jdk",
+        "tag":  "1000.1",
+        "from": "{{ docker_repository_name }}/jenkins-slave-base:1000.1",
+        "dockerfile_template": "dockerfiles/jenkins-slave-default.j2"
+    },
+    {
+        "name": "jenkins-slave-maven",
+        "tag":  "1000.1",
+        "from": "{{ docker_repository_name }}/jenkins-slave-jdk:1000.1",
+        "dockerfile_template": "dockerfiles/jenkins-slave-default.j2"
+    },
+    {
+        "name": "jenkins-slave-tools-cent6",
+        "tag":  "1000.1",
+        "from": "{{ docker_repository_name }}/jenkins-slave-maven:1000.1",
+        "dockerfile_template": "dockerfiles/jenkins-slave-default.j2"
+    },
+    {
+        "name": "jenkins-slave-tools",
+        "tag":  "1000.1",
+        "from": "{{ docker_repository_name }}/jenkins-slave-maven:1000.1",
+        "dockerfile_template": "dockerfiles/jenkins-slave-default.j2"
+    },
+    {
+        "name": "jenkins-slave-selenium",
+        "tag":  "1000.1",
+        "from": "{{ docker_repository_name }}/jenkins-slave-maven:1000.1",
+        "dockerfile_template": "dockerfiles/jenkins-slave-selenium.j2"
+    },
+    {
+        "name": "jenkins-slave-selenium-inc-legacychrome",
+        "tag":  "1000.1",
+        "from": "{{ docker_repository_name }}/jenkins-slave-selenium:1000.1",
+        "dockerfile_template": "dockerfiles/jenkins-slave-selenium.j2"
+    }
+]

@@ -1,0 +1,8 @@
+---
+# file: roles/jenkins-slave-selenium/tasks/main.yml
+# tasks for initializing jenkins-slave-selenium
+
+- name: "start tigervnc"
+  sudo: yes
+  sudo_user: jenkins
+  command: "vncserver $DISPLAY"

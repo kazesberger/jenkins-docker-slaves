@@ -1,0 +1,45 @@
+---
+# file: jenkins-slave-base/setup.yml
+# main play for setting up jenkins-slave-base
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "play that setups jenkins-slave-base"
+  hosts: "local"
+  connection: "local"
+
+  vars:
+    jenkins_user:   "jenkins"
+    jenkins_group:  "jenkins"
+    jenkins_home:   "/home/jenkins"
+    available_jdks: [
+      {
+        "package_name": "jdk-6u45-linux-x64.bin",
+        "download_url": "http://download.oracle.com/otn-pub/java/jdk/6u45-b06",
+        "extract_name": "jdk1.6.0_45",
+        "download_dir": "/tmp/jdk6",
+        "install_dir":  "{{ jenkins_home }}/tools/hudson.model.JDK",
+        "install_name": "JDK6",
+        "default_jdk":  "true"
+      }
+    ]
+
+  roles:
+  - certificates
+  - basic-tools
+  - { role: jenkins-user,
+        user: "{{ jenkins_user }}",
+        home_dir: "{{ jenkins_home }}"
+    }  
+  - ansible
+  - { role: jdk,
+        jdks_to_install: "{{ available_jdks }}",
+        user: "{{ jenkins_user }}",
+        group: "{{ jenkins_group }}"
+    }
+  - git
+  - svn
+  - { role: init,
+        playbook_destination: "{{ jenkins_home }}",
+        user: "{{ jenkins_user }}",
+        group: "{{ jenkins_group}}"
+    }

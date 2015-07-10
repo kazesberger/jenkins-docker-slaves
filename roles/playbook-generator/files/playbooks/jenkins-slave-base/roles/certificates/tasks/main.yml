@@ -1,0 +1,16 @@
+---
+# file: roles/certificats/tasks/main.yml
+# role for installing certificates to a slave
+
+- name: "install self signed certificates"
+  copy:
+    src="{{ item }}"
+    dest="/etc/pki/ca-trust/source/anchors/"
+  with_items:
+    - ["BEissuing.crt",
+       "grzcidocker01.infonova.at.CA.crt"]
+  when:
+    ansible_distribution == "CentOS" or
+    ansible_distribution == "Red Hat Enterprise Linux"
+  notify:
+  - update ca trust

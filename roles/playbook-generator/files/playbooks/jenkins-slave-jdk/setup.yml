@@ -1,0 +1,57 @@
+---
+# file: jenkins-slave-jdk/setup.yml
+# main play for setting up jenkins-slave-jdk
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "play that setups jenkins-slave-jdk"
+  hosts: "local"
+  connection: "local"
+
+  vars:
+    jenkins_user:   "jenkins"
+    jenkins_group:  "jenkins"
+    available_jdks: [
+      {
+        "package_name": "jdk-8u25-linux-x64.tar.gz",
+        "download_url": "http://download.oracle.com/otn-pub/java/jdk/8u25-b17",
+        "extract_name": "jdk1.8.0_25",
+        "download_dir": "/tmp/jdk8",
+        "install_dir":  "/home/jenkins/tools/hudson.model.JDK",
+        "install_name": "JDK8",
+        "default_jdk":  "false"
+      },
+      {
+        "package_name": "jdk-8u45-linux-x64.tar.gz",
+        "download_url": "http://download.oracle.com/otn-pub/java/jdk/8u45-b14",
+        "extract_name": "jdk1.8.0_45",
+        "download_dir": "/tmp/jdk8u45",
+        "install_dir":  "/home/jenkins/tools/hudson.model.JDK",
+        "install_name": "JDK8u45",
+        "default_jdk":  "false"
+      },
+      {
+        "package_name": "jdk-7u71-linux-x64.tar.gz",
+        "download_url": "http://download.oracle.com/otn-pub/java/jdk/7u71-b14",
+        "extract_name": "jdk1.7.0_71",
+        "download_dir": "/tmp/jdk7",
+        "install_dir":  "/home/jenkins/tools/hudson.model.JDK",
+        "install_name": "JDK7",
+        "default_jdk":  "false"
+      },
+      {
+        "package_name": "jdk-1_5_0_22-linux-amd64.tar.gz",
+        "download_url": "http://10.1.30.129/jdk",
+        "extract_name": "jdk1.5.0_22",
+        "download_dir": "/tmp/jdk5",
+        "install_dir":  "/home/jenkins/tools/hudson.model.JDK",
+        "install_name": "JDK5",
+        "default_jdk":  "false"
+      }
+    ]
+
+  roles:
+  - { role: jdk,
+        jdks_to_install: "{{ available_jdks }}",
+        user: "{{ jenkins_user }}",
+        group: "{{ jenkins_group }}"
+    }

@@ -1,0 +1,27 @@
+---
+# file: roles/basic-tools/main.yml
+# role for installing basic tools
+
+- name: "install basic tools with yum"
+  yum:
+    name="{{ item }}"
+    state="latest"
+  with_items:
+    - ["wget",
+       "tar",
+       "zip",
+       "unzip",
+       "sshpass",
+       "rsync",
+       "openssh-clients",
+       "sudo",
+       "vpnc"]
+  when:
+    ansible_distribution == "CentOS" or
+    ansible_distribution == "Red Hat Enterprise Linux"
+
+- name: "deactivate require tty in /etc/sudoers"
+  lineinfile:
+    dest="/etc/sudoers"
+    regexp="^Defaults.*requiretty"
+    line="#Defaults    requiretty"

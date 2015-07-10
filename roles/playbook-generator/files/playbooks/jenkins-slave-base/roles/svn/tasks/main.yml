@@ -1,0 +1,32 @@
+---
+# file: roles/svn/tasks/main.yml
+# role for installing svn on a slave
+
+# CentOs 7
+- name: "install dependencies for svn for CentOS 7"
+  yum:
+    name="{{ item }}"
+    state="latest"
+  with_items:
+    - ["svn"]
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int == 7
+
+
+# CentOS 6 or below
+- name: "install dependencies for svn for CentOs 6"
+  yum:
+    name="{{ item }}"
+    state="latest"
+  with_items:
+    - ["sqlite"]
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int <= 6
+
+- name: "get the svn rpm for CentOS 6"
+  get_url: url=http://10.1.30.129/rpms/subversion-1.7.19-1.x86_64.rpm dest=/tmp/subversion-1.7.19-1.x86_64.rpm #grzcimom01
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int <= 6
+  
+- name: "install svn via rpm for CentOS 6"
+  yum:
+    name="/tmp/subversion-1.7.19-1.x86_64.rpm"
+    state=present
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int <= 6

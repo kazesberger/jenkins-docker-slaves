@@ -1,0 +1,59 @@
+---
+# file: jenkins-slave-maven/setup.yml
+# main play for setting up jenkins-slave-maven
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "play that setups jenkins-slave-maven"
+  hosts: "local"
+  connection: "local"
+
+  vars:
+    jenkins_user:   "jenkins"
+    jenkins_group:  "jenkins"
+    available_mvns: [
+      {
+        "package_name": "apache-maven-3.2.2-bin.tar.gz",
+        "extract_name": "apache-maven-3.2.2",
+        "download_dir": "/tmp/maven-3.2.2",
+        "install_dir":  "/home/jenkins/tools/hudson.tasks.Maven_MavenInstallation",
+        "install_name": "maven-3.2.2",
+        "default_mvn":  "true"
+      },
+      {
+        "package_name": "apache-maven-3.1.1-bin.tar.gz",
+        "extract_name": "apache-maven-3.1.1",
+        "download_dir": "/tmp/maven-3.1.1",
+        "install_dir":  "/home/jenkins/tools/hudson.tasks.Maven_MavenInstallation",
+        "install_name": "maven-3.1.1",
+        "default_mvn":  "false"
+      },
+      {
+        "package_name": "apache-maven-3.0.5-bin.tar.gz",
+        "extract_name": "apache-maven-3.0.5",
+        "download_dir": "/tmp/maven-3.0.5",
+        "install_dir":  "/home/jenkins/tools/hudson.tasks.Maven_MavenInstallation",
+        "install_name": "maven-3.0.5",
+        "default_mvn":  "false"
+      }
+    ]
+
+  roles:
+  - { role: maven,
+        mvns_to_install: "{{ available_mvns }}",
+        user: "{{ jenkins_user }}",
+        group: "{{ jenkins_group }}"
+    }
+
+  tasks:
+  - name: "make local-repos dir"
+    file:
+      dest="{{ item }}"
+      state="directory"
+      owner="{{ jenkins_user }}"
+      group="{{ jenkins_group }}"
+    with_items:
+    - /home/jenkins/local-repos/maven/repository
+    - /home/jenkins/local-repos/gradle/daemon
+    - /home/jenkins/local-repos/gradle/wrapper
+    - /home/jenkins/local-repos/gradle/caches
+    - /home/jenkins/local-repos/gradle/native

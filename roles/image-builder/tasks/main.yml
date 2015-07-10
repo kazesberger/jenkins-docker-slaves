@@ -1,0 +1,25 @@
+---
+# file: roles/image-builder/main.yml
+# role for building docker images
+
+- name: "try to pull docker images"
+  command: "docker pull {{ docker_repository_name }}/{{ item.name }}:{{ item.tag }}"
+  with_items: images_to_build
+  register: docker_pull_status
+  changed_when: "'Downloaded newer image for' in docker_pull_status.stdout"
+  ignore_errors: "true"
+
+- name: "build docker images"
+  docker_image:
+    path="{{ docker_build_path }}/{{ item.name }}"
+    name="{{ docker_repository_name }}/{{ item.name }}"
+    tag="{{ item.tag }}"
+    state="{{ docker_image_state }}"
+  with_items: images_to_build
+
+- name: "push docker images to registry"
+  command: "docker push {{ docker_repository_name }}/{{ item.name }}:{{ item.tag }}"
+  with_items: images_to_build
+  register: docker_push_status
+  changed_when: "'Image successfully pushed' in docker_push_status.stdout"
+  when: push_images == "true"

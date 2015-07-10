@@ -1,0 +1,20 @@
+---
+# file: remove-images.yml
+# main play for removing docker images on a docker host
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "a play that removes a set of docker images"
+  hosts: "docker"
+  gather_facts: "no"
+
+  vars_files:
+  - vars/main.yml
+
+  tasks:
+  - name: "remove docker images"
+    docker_image:
+      path="{{ docker_build_path }}/{{ item.name }}"
+      name="{{ docker_repository_name }}/{{ item.name }}"
+      tag="{{ item.tag }}"
+      state="absent"
+    with_items: available_images

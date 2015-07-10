@@ -1,0 +1,24 @@
+---
+
+- name: "install chrome"
+  yum:
+    name=google-chrome-stable
+    state="present"
+    disable_gpg_check="yes"
+
+- name: "Copy chromedriver to local bin path"
+  copy:
+    src="chromedriver"
+    dest="/usr/local/bin/chromedriver"
+    owner="root"
+    mode="755"
+
+- name: "Move original chrome binary"
+  command: mv /opt/google/chrome/google-chrome /opt/google/chrome/google-chrome.orig
+
+- name: "Copy set use sandbox mode no script"
+  copy:
+    src="google-chrome"
+    dest="/opt/google/chrome/google-chrome"
+    owner="root"
+    mode="755"

@@ -1,0 +1,14 @@
+- name: "get gid of /var/run/docker.sock"
+  shell: ls -n /var/run/docker.sock | awk '{print $4}'
+  register: docker_gid
+
+- name: "add group docker"
+  group:
+    name="docker"
+    gid="{{ docker_gid.stdout_lines[0] }}"
+
+- name: "add group docker to jenkins"
+  user:
+    name="jenkins"
+    groups="docker"
+    append="yes"

@@ -1,0 +1,107 @@
+---
+# file: roles/certificats/tasks/main.yml
+# role for installing certificates to a slave
+
+- name: "make sure download dir exists"
+  file:
+    dest="{{ item.download_dir }}"
+    state="directory"
+    owner="{{ user }}"
+    group="{{ group }}"
+  with_items: jdks_to_install
+
+- name: "make sure install dir dir exists"
+  file:
+    dest="{{ item.install_dir }}"
+    state="directory"
+    owner="{{ user }}"
+    group="{{ group }}"
+  with_items: jdks_to_install
+
+- name: "download jdk from oracle"
+  command:
+    "/usr/bin/curl \
+      -L --header 'Cookie: oraclelicense=accept-securebackup-cookie' \
+      {{ item.download_url }}/{{ item.package_name }} \
+      -o {{ item.download_dir }}/{{ item.package_name }}"
+  args:
+    creates: "{{ item.download_dir }}/{{ item.package_name }}"
+  with_items: jdks_to_install
+
+- name: make downloaded file executeable
+  file: dest="{{ item.download_dir }}/{{ item.package_name }}" mode="a+x"
+  with_items: jdks_to_install
+
+- name: "extract with unarchive (tar.gz, zip)"
+  sudo: "yes"
+  sudo_user: "{{ user }}"
+  unarchive:
+    src="{{ item.download_dir }}/{{ item.package_name }}"
+    dest="{{ item.install_dir }}"
+    copy="false"
+  args:
+    creates: "{{ item.install_dir }}/{{ item.extract_name }}"
+  when: "'.bin' not in item.package_name"
+  with_items: jdks_to_install
+
+- name: "extract with command (bin, sh)"
+  sudo: "yes"
+  sudo_user: "{{ user }}"
+  command: "{{ item.download_dir }}/{{ item.package_name }}"
+  args:
+    chdir: "{{ item.install_dir }}"
+    creates: "{{ item.install_dir }}/{{ item.extract_name }}"
+  when: "'.bin' in item.package_name"
+  with_items: jdks_to_install
+
+- name: "rename jdk folder"
+  command: "mv {{ item.extract_name }} {{ item.install_name }}"
+  args:
+    chdir: "{{ item.install_dir }}"
+  with_items: jdks_to_install
+
+#- name: "update cacerts"
+#  copy:
+#    src="cacerts"
+#    dest="{{ item.install_dir }}/{{ item.install_name }}/jre/lib/security/cacerts"
+#    owner="{{ user }}"
+#    group="{{ group }}"
+#  with_items: jdks_to_install
+
+- name: "link java in /usr/bin"
+  file:
+    src="{{ item.install_dir }}/{{ item.install_name }}/bin/java"
+    dest="/usr/bin/java"
+    state="link"
+  when: item.default_jdk == "true"
+  with_items: jdks_to_install
+
+- name: "link javac in /usr/bin"
+  file:
+    src="{{ item.install_dir }}/{{ item.install_name }}/bin/javac"
+    dest="/usr/bin/javac"
+    state="link"
+  when: item.default_jdk == "true"
+  with_items: jdks_to_install
+
+- name: "link javadoc in /usr/bin"
+  file:
+    src="{{ item.install_dir }}/{{ item.install_name }}/bin/javadoc"
+    dest="/usr/bin/javadoc"
+    state="link"
+  when: item.default_jdk == "true"
+  with_items: jdks_to_install
+
+- name: "link javaws in /usr/bin"
+  file:
+    src="{{ item.install_dir }}/{{ item.install_name }}/bin/javaws"
+    dest="/usr/bin/javaws"
+    state="link"
+  when: item.default_jdk == "true"
+  with_items: jdks_to_install
+
+- name: "remove install files"
+  file:
+    dest="{{ item.download_dir }}"
+    state="absent"
+  with_items: jdks_to_install

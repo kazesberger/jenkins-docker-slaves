@@ -1,0 +1,55 @@
+---
+# file: roles/firefox/tasks/main.yml
+# role for installing firefox
+
+- name: "install dependencies"
+  yum:
+    name="{{ item }}"
+    state="latest"
+  with_items:
+  - ["xorg-x11-fonts*",
+     "gtk2",
+     "libcanberra-gtk2",
+     "bzip2"]
+
+- name: "make sure download dir exists"
+  file:
+    dest="/tmp/firefox"
+    state="directory"
+
+- name: "download firefox"
+  get_url:
+    url="{{firefox_download_url}}"
+    dest="/tmp/firefox/firefox-tar.bz2"
+
+- name: "extract firefox"
+  unarchive:
+    src="/tmp/firefox/firefox-tar.bz2"
+    dest="/opt"
+    copy="false"
+  args:
+    creates: "/opt/firefox"
+
+- name: "link firefox in /usr/bin"
+  file:
+    src="/opt/firefox/firefox"
+    dest="/usr/bin/firefox"
+    state="link"
+
+- name: "add export statement to profile.d/firefox.sh"
+  copy:
+    content="export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/firefox"
+    dest="/etc/profile.d/firefox.sh"
+    mode="755"
+
+# http://www.torkwrench.com/2011/12/16/
+# d-bus-library-appears-to-be-incorrectly-set-up-failed-to-read-machine-uuid-failed-to-open-varlibdbusmachine-id/
+- name: "generate dbus machine id"
+  shell: "dbus-uuidgen > /var/lib/dbus/machine-id"
+  args:
+    creates: "/var/lib/dbus/machine-id"
+
+- name: "remove install files"
+  file:
+    dest="/tmp/firefox"
+    state="absent"

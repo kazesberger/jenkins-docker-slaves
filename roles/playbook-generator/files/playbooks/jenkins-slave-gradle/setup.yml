@@ -1,0 +1,29 @@
+---
+# file: jenkins-slave-gradle/setup.yml
+# main play for setting up jenkins-slave-gradle
+# use "-i localhost" and "-c local" for building on local machine
+
+- name: "play that setups jenkins-slave-gradle"
+  hosts: "local"
+  connection: "local"
+
+  vars:
+    jenkins_user:   "jenkins"
+    jenkins_group:  "jenkins"
+    available_gradles: [
+      {
+        "package_name": "gradle-2.2.1-bin.zip",
+        "extract_name": "gradle-2.2.1",
+        "download_dir": "/tmp/gradle-2.2.1",
+        "install_dir":  "/home/jenkins/tools/hudson.plugins.gradle.GradleInstallation",
+        "install_name": "gradle-2.2.1",
+        "default_mvn":  "true"
+      }
+    ]
+
+  roles:
+  - { role: gradle,
+        gradles_to_install: "{{ available_gradles }}",
+        user: "{{ jenkins_user }}",
+        group: "{{ jenkins_group }}"
+    }

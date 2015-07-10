@@ -1,0 +1,73 @@
+---
+# file: roles/git/tasks/main.yml
+# role for installing git on a slave
+
+- name: "install build dependencies"
+  yum:
+    name="{{ item }}"
+    state="latest"
+  with_items:
+    - ["gcc",
+       "make",
+       "autoconf",
+       "perl-devel",
+       "curl-devel",
+       "expat-devel",
+       "gettext-devel",
+       "openssl-devel",
+       "zlib-devel"]
+  when:
+    ansible_distribution == "CentOS" or
+    ansible_distribution == "Red Hat Enterprise Linux"
+
+- name: "make sure tmp dir exists"
+  file:
+    dest="{{ git_tmp_dir }}"
+    state="directory"
+
+- name: "download git {{ git_version }}"
+  get_url:
+    url="https://github.com/git/git/archive/v{{ git_version }}.tar.gz"
+    dest="{{ git_tmp_dir }}/git-{{ git_version }}.tar.gz"
+
+- name: "extract files"
+  unarchive:
+    src="{{ git_tmp_dir }}/git-{{ git_version }}.tar.gz"
+    dest="{{ git_tmp_dir }}"
+    copy="false"
+
+- name: "define NO_INSTALL_HARDLINKS in makefile"
+  lineinfile:
+    dest="{{ git_tmp_dir }}/git-{{ git_version }}/Makefile"
+    insertafter="^# Define NO_INSTALL_HARDLINKS.*"
+    line="NO_INSTALL_HARDLINKS='true'"
+
+- name: "install git"
+  command: "{{ item }}"
+  args:
+    chdir: "{{ git_tmp_dir }}/git-{{ git_version }}"
+  with_items:
+    - ["make configure",
+       "./configure --prefix=/usr",
+       "make",
+       "make install"]
+
+- name: "remove install files"
+  file:
+    dest="{{ git_tmp_dir }}"
+    state="absent"
+
+- name: "erase some build dependencies"
+  yum:
+    name="{{ item }}"
+    state="absent"
+  with_items:
+    - ["perl-devel",
+       "curl-devel",
+       "expat-devel",
+       "gettext-devel",
+       "openssl-devel",
+       "zlib-devel"]
+  when:
+    ansible_distribution == "CentOS" or
+    ansible_distribution == "Red Hat Enterprise Linux"

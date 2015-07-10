@@ -1,0 +1,30 @@
+---
+# file: roles/maven/tasks/main.yml
+# role for installing maven on a slave
+
+- name: "install dependencies for oracle client"
+  yum:
+    name="libaio"
+    state="latest"
+
+- name: "install oracle packages"
+  yum:
+    name="{{ item }}"
+    state="present"
+    disable_gpg_check="yes"
+  with_items:
+  - ["http://10.1.30.129/tools/oracle/oracle-instantclient11.2-basic-11.2.0.3.0-1.x86_64.rpm",
+     "http://10.1.30.129/tools/oracle/oracle-instantclient11.2-sqlplus-11.2.0.3.0-1.x86_64.rpm",
+     "http://10.1.30.129/tools/oracle/oracle-instantclient11.2-devel-11.2.0.3.0-1.x86_64.rpm"]
+
+- name: "write environment variables to .bash_profile"
+  lineinfile:
+    dest="/home/jenkins/.bash_profile"
+    regexp="^export {{ item.key }}=.*$"
+    line="export {{ item.key }}={{ item.value }}"
+  with_items:
+  - { key: "ORACLE_HOME", value: "/usr/lib/oracle/11.2/client64" }
+  - { key: "LD_LIBRARY_PATH", value: "$LD_LIBRARY_PATH:$ORACLE_HOME/lib" }
+  - { key: "TNS_ADMIN", value: "$ORACLE_HOME/network/admin" }
+  - { key: "NLS_LANG", value: "AMERICAN_AMERICA.UTF8" }
+  - { key: "PATH", value: "$PATH:$ORACLE_HOME/bin" }
