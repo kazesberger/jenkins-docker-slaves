@@ -28,12 +28,6 @@ available_images: [
         "dockerfile_template": "dockerfiles/jenkins-slave-default.j2"
     },
     {
-        "name": "jenkins-slave-tools-cent6",
-        "tag":  "1000.1",
-        "from": "{{ docker_repository_name }}/jenkins-slave-maven:1000.1",
-        "dockerfile_template": "dockerfiles/jenkins-slave-default.j2"
-    },
-    {
         "name": "jenkins-slave-tools",
         "tag":  "1000.1",
         "from": "{{ docker_repository_name }}/jenkins-slave-maven:1000.1",
